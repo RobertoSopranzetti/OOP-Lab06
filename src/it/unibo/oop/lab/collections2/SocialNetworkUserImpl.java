@@ -1,7 +1,13 @@
 package it.unibo.oop.lab.collections2;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 
@@ -29,6 +35,7 @@ public class SocialNetworkUserImpl<U extends User> extends UserImpl implements S
      * 
      * think of what type of keys and values would best suit the requirements
      */
+	private final Map<String,Set<U>> friends;
 
     /*
      * [CONSTRUCTORS]
@@ -56,6 +63,11 @@ public class SocialNetworkUserImpl<U extends User> extends UserImpl implements S
      */
     public SocialNetworkUserImpl(final String name, final String surname, final String user, final int userAge) {
         super(name, surname, user, userAge);
+        this.friends = new HashMap<>();
+    }
+    
+    public SocialNetworkUserImpl(final String name, final String surname, final String user) {
+		this(name, surname, user, -1);
     }
 
     /*
@@ -66,17 +78,30 @@ public class SocialNetworkUserImpl<U extends User> extends UserImpl implements S
 
     @Override
     public boolean addFollowedUser(final String circle, final U user) {
-        return false;
+        Set<U> circleFriends = this.friends.get(circle);
+        if (circleFriends == null ) {
+        	circleFriends = new HashSet<>();
+        	this.friends.put(circle, circleFriends);
+        }
+    	return circleFriends.add(user);
     }
 
     @Override
     public Collection<U> getFollowedUsersInGroup(final String groupName) {
-        return null;
+        final Collection<U> groupFollowers = this.friends.get(groupName);
+        if (groupFollowers != null) {
+        	return new ArrayList<>(groupFollowers);
+        }
+        
+        return Collections.emptyList();
     }
 
     @Override
     public List<U> getFollowedUsers() {
-        return null;
+        final Set<U> followers = new HashSet<>();
+        for (final var group : this.friends.values() ) {
+        	followers.addAll(group);
+        }
+        return new ArrayList<>(followers);
     }
-
 }
